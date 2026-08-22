@@ -4,7 +4,17 @@ const Doctor = require("../models/Doctor");
 
 const addDoctor = async (req, res) => {
   try {
-    const doctor = await Doctor.create(req.body);
+    const doctorData = {
+      ...req.body,
+    };
+
+    // If image was uploaded
+
+    if (req.file) {
+      doctorData.image = `/uploads/doctors/${req.file.filename}`;
+    }
+
+    const doctor = await Doctor.create(doctorData);
 
     res.status(201).json({
       success: true,
