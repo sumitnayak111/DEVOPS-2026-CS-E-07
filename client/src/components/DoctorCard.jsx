@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 function DoctorCard({ doctor }) {
   const image = doctor?.image
-  ? `http://localhost:8000${doctor.image}`
-  : "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500";
+    ? `http://localhost:8000${doctor.image}`
+    : "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500";
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300">
       {/* Doctor Image */}
@@ -54,8 +54,14 @@ function DoctorCard({ doctor }) {
         </div>
 
         <Link
-          to={`/book/${doctor?._id}`}
-          className="block text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg mt-5 transition"
+          to={`/doctors/${doctor._id}`}
+          className="block text-center border-2 border-blue-600 text-blue-600 font-semibold py-3 rounded-lg mt-5 hover:bg-blue-50"
+        >
+          View Profile
+        </Link>
+        <Link
+          to={`/book/${doctor._id}`}
+          className="block text-center bg-blue-600 text-white py-3 rounded-lg mt-3 hover:bg-blue-700"
         >
           Book Appointment
         </Link>
