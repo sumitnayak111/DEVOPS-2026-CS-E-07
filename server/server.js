@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const appointmentRoutes = require("./routes/appointmentRoutes");
+const medicalRecordRoutes = require("./routes/medicalRecordRoutes");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -18,6 +19,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/medical-records", medicalRecordRoutes);
 app.get("/", (req, res) => {
   res.json({
     success: true,

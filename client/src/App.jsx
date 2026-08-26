@@ -1,3 +1,5 @@
+import AdminMedicalRecords from "./pages/AdminMedicalRecords";
+import MyMedicalRecords from "./pages/MyMedicalRecords";
 import AdminAppointments from "./pages/AdminAppointments";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -59,6 +61,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/medical-records"
+         element={
+           <ProtectedRoute role="admin">
+              <AdminMedicalRecords />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/appointments"
@@ -68,8 +78,23 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/medical-records"
+          element={
+            <ProtectedRoute role="patient">
+               <MyMedicalRecords />
+            </ProtectedRoute>
+           }
+        />
 
-        <Route path="/patient" element={<PatientDashboard />} />
+        <Route
+         path="/patient"
+         element={
+            <ProtectedRoute role="patient">
+              <PatientDashboard />
+             </ProtectedRoute>
+             }
+          />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
