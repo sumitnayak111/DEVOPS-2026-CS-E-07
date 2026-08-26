@@ -14,7 +14,15 @@ const navigate = useNavigate();
       email,
       password,
     });
+    localStorage.setItem("token", res.data.token);
+
     localStorage.setItem("role", res.data.user.role);
+
+    localStorage.setItem(
+     "user",
+     JSON.stringify(res.data.user)
+    );
+    
 
     console.log(res.data);
     alert("Login Successful");
