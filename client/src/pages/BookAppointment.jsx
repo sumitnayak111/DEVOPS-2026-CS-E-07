@@ -7,6 +7,7 @@ function BookAppointment() {
   const [doctor, setDoctor] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
   const [error, setError] = useState("");
@@ -37,6 +38,7 @@ function BookAppointment() {
         doctorId,
         appointmentDate: date,
         appointmentTime: time,
+        reason,
       });
       alert(res.data.message || "Appointment booked successfully!");
       navigate("/appointments");
@@ -44,7 +46,7 @@ function BookAppointment() {
       console.log(err);
       alert(
         err.response?.data?.message ||
-          "Unable to book appointment. Please try again."
+          "Unable to book appointment. Please try again.",
       );
     } finally {
       setBooking(false);
@@ -92,9 +94,7 @@ function BookAppointment() {
               className="w-full h-72 object-cover"
             />
             <div className="p-6">
-              <h2 className="text-2xl font-bold">
-                Dr. {doctor.name}
-              </h2>
+              <h2 className="text-2xl font-bold">Dr. {doctor.name}</h2>
               <p className="text-blue-600 font-semibold mt-2">
                 {doctor.specialization}
               </p>
@@ -114,14 +114,10 @@ function BookAppointment() {
           </div>
           {/* Booking Form */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-6">
-              Appointment Details
-            </h2>
+            <h2 className="text-2xl font-bold mb-6">Appointment Details</h2>
             <form onSubmit={handleBooking}>
               <div className="mb-5">
-                <label className="block font-medium mb-2">
-                  Select Date
-                </label>
+                <label className="block font-medium mb-2">Select Date</label>
                 <input
                   type="date"
                   value={date}
@@ -132,9 +128,7 @@ function BookAppointment() {
                 />
               </div>
               <div className="mb-5">
-                <label className="block font-medium mb-2">
-                  Select Time
-                </label>
+                <label className="block font-medium mb-2">Select Time</label>
                 <input
                   type="time"
                   value={time}
@@ -143,10 +137,21 @@ function BookAppointment() {
                   required
                 />
               </div>
+              <div className="mb-5">
+                <label className="block font-medium mb-2">
+                  Reason for Visit
+                </label>
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Enter reason for your appointment"
+                  rows="4"
+                  className="w-full border border-gray-300 rounded-lg p-3"
+                  required
+                ></textarea>
+              </div>
               <div className="bg-blue-50 p-4 rounded-lg mb-5">
-                <p className="text-gray-700">
-                  Consultation Fee
-                </p>
+                <p className="text-gray-700">Consultation Fee</p>
                 <p className="text-2xl font-bold text-blue-600">
                   ₹{doctor.consultationFee}
                 </p>
