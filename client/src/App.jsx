@@ -20,6 +20,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 import PatientDashboard from "./pages/PatientDashboard";
 
+import DoctorDetails from "./pages/DoctorDetails";
+
 import NotFound from "./pages/NotFound";
 
 import Navbar from "./components/Navbar";
@@ -39,6 +41,8 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/doctors" element={<Doctors />} />
+
+        <Route path="/doctors/:id" element={<DoctorDetails />} />
 
         <Route path="/book/:id" element={<BookAppointment />} />
 
@@ -65,6 +69,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MyAppointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/book/:doctorId"
+          element={
+            <ProtectedRoute>
+              <BookAppointment />
             </ProtectedRoute>
           }
         />
