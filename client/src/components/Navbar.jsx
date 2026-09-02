@@ -34,6 +34,9 @@ function Navbar() {
           >
             Doctors
           </Link>
+          <Link to="/contact" className="hover:text-yellow-300 transition">
+            Contact
+            </Link>
           {token && role === "patient" && (
             <Link
               to="/appointments"

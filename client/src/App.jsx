@@ -28,6 +28,8 @@ import Navbar from "./components/Navbar";
 
 import Footer from "./components/Footer";
 
+import Contact from "./pages/Contact";
+
 function App() {
   return (
     <>
@@ -82,6 +84,7 @@ function App() {
         />
 
         <Route path="/patient" element={<PatientDashboard />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
