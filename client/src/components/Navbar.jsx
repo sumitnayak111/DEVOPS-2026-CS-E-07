@@ -1,67 +1,53 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaHospital, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+
 function Navbar() {
   const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
-  const logout = () => {
+
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+
+  const role = user?.role;
+
+  const handleLogout = () => {
     localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
     localStorage.removeItem("role");
+
+    alert("Logged out successfully");
+
     navigate("/login");
   };
+
   return (
-    <nav className="bg-blue-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+    <nav className="bg-blue-600 text-white px-6 py-4 shadow-lg">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-2xl font-bold"
-        >
-          <FaHospital />
-          <span>HospitalMS</span>
+
+        <Link to="/" className="text-xl md:text-2xl font-bold">
+          Hospital Management System
         </Link>
-        {/* Menu */}
-        <div className="flex items-center gap-6">
-          <Link
-            to="/"
-            className="hover:text-yellow-300 transition"
-          >
+
+        {/* Navigation */}
+
+        <div className="flex items-center gap-5">
+          <Link to="/" className="hover:text-yellow-300 transition">
             Home
           </Link>
-          <Link
-            to="/doctors"
-            className="hover:text-yellow-300 transition"
-          >
+
+          <Link to="/doctors" className="hover:text-yellow-300 transition">
             Doctors
           </Link>
+
           <Link to="/contact" className="hover:text-yellow-300 transition">
             Contact
-            </Link>
-          {token && role === "patient" && (
-            <Link
-              to="/appointments"
-              className="hover:text-yellow-300 transition"
-            >
-              My Appointments
-            </Link>
-          )}
-          {token && role === "admin" && (
-            <>
-              <Link
-                to="/admin"
-                className="hover:text-yellow-300 transition"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/admin/appointments"
-                className="hover:text-yellow-300 transition"
-              >
-                Appointments
-              </Link>
-            </>
-          )}
-          {!token ? (
+          </Link>
+
+          {/* Logged Out */}
+
+          {!token && (
             <>
               <Link
                 to="/login"
@@ -69,6 +55,7 @@ function Navbar() {
               >
                 Login
               </Link>
+
               <Link
                 to="/register"
                 className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300"
@@ -76,21 +63,59 @@ function Navbar() {
                 Register
               </Link>
             </>
-          ) : (
-            <div className="flex items-center gap-3">
-              <FaUserCircle size={28} />
-              <button
-                onClick={logout}
-                className="flex items-center gap-2 bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
+          )}
+
+          {/* Patient */}
+
+          {token && role === "patient" && (
+            <>
+              <Link
+                to="/appointments"
+                className="hover:text-yellow-300 transition"
               >
-                <FaSignOutAlt />
+                My Appointments
+              </Link>
+
+              <Link to="/patient" className="hover:text-yellow-300 transition">
+                Dashboard
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-semibold"
+              >
                 Logout
               </button>
-            </div>
+            </>
+          )}
+
+          {/* Admin */}
+
+          {token && role === "admin" && (
+            <>
+              <Link to="/admin" className="hover:text-yellow-300 transition">
+                Admin Dashboard
+              </Link>
+
+              <Link
+                to="/admin/appointments"
+                className="hover:text-yellow-300 transition"
+              >
+                Appointments
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-semibold"
+              >
+                Logout
+              </button>
+            </>
           )}
         </div>
       </div>
     </nav>
   );
 }
+
 export default Navbar;
