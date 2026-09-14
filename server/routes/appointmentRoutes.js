@@ -16,6 +16,8 @@ const {
 
   getMyAppointments,
 
+  cancelAppointment,
+
 } = require("../controllers/appointmentController");
 
 const { protect, authorize } = require("../middleware/authMiddleware");
@@ -36,6 +38,10 @@ router.get("/:id", protect, getAppointmentById);
 // Admin updates appointment status
 
 router.put("/:id", protect, authorize("admin"), updateAppointmentStatus);
+
+// Patient cancels their own appointment — NEW
+
+router.patch("/:id/cancel", protect, cancelAppointment);
 
 // Admin deletes appointment
 

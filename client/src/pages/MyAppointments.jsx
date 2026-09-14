@@ -6,6 +6,8 @@ function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cancellingId, setCancellingId] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -27,6 +29,25 @@ function MyAppointments() {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Cancel appointment handler
+  const handleCancel = async (id) => {
+    try {
+      setCancellingId(id);
+      await API.patch(`/appointments/${id}/cancel`);
+      // Update status locally — no need to refetch
+      setAppointments((prev) =>
+        prev.map((appt) =>
+          appt._id === id ? { ...appt, status: "Rejected" } : appt
+        )
+      );
+      setConfirmId(null);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to cancel appointment.");
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -186,6 +207,45 @@ function MyAppointments() {
                     </p>
                   </div>
                 </div>
+
+                {/* Cancel Button — only for Pending appointments */}
+                {appointment.status === "Pending" && (
+                  <div className="mt-5">
+                    {confirmId === appointment._id ? (
+                      // Confirmation dialog
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-red-700 font-semibold text-sm mb-3">
+                          Are you sure you want to cancel this appointment?
+                        </p>
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => handleCancel(appointment._id)}
+                            disabled={cancellingId === appointment._id}
+                            className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-60"
+                          >
+                            {cancellingId === appointment._id
+                              ? "Cancelling..."
+                              : "Yes, Cancel"}
+                          </button>
+                          <button
+                            onClick={() => setConfirmId(null)}
+                            className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300"
+                          >
+                            No, Keep It
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmId(appointment._id)}
+                        className="w-full border-2 border-red-500 text-red-500 py-2 rounded-lg font-semibold hover:bg-red-50 transition"
+                      >
+                        Cancel Appointment
+                      </button>
+                    )}
+                  </div>
+                )}
+
               </div>
             ))}
           </div>
