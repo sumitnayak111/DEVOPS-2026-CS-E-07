@@ -53,6 +53,8 @@ const getAppointments = async (req, res) => {
     });
   }
 };
+
+
 const getMyAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({
@@ -159,6 +161,43 @@ const deleteAppointment = async (req, res) => {
   }
 };
 
+// Cancel Appointment (Patient) — NEW
+const cancelAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+ 
+    // Check appointment exists
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment Not Found" });
+    }
+ 
+    // Check appointment belongs to this patient
+    if (appointment.patient.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Not authorized to cancel this appointment" });
+    }
+ 
+    // Only Pending appointments can be cancelled
+    if (appointment.status !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot cancel an appointment that is already ${appointment.status}`,
+      });
+    }
+ 
+     // Update status to Rejected (Cancelled)
+    appointment.status = "Rejected";
+    await appointment.save();
+ 
+    res.status(200).json({
+      success: true,
+      message: "Appointment Cancelled Successfully",
+      data: appointment,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
 
   bookAppointment,
@@ -172,5 +211,7 @@ module.exports = {
   deleteAppointment,
 
   getMyAppointments,
+
+  cancelAppointment,
 
 };
