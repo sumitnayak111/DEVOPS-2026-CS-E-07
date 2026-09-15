@@ -40,13 +40,23 @@ function BookAppointment() {
         appointmentTime: time,
         reason,
       });
-      alert(res.data.message || "Appointment booked successfully!");
-      navigate("/appointments");
+          // Navigate to success page with booking details passed as state
+      navigate("/appointments/success", {
+        state: {
+          doctorName: doctor.name,
+          specialization: doctor.specialization,
+          consultationFee: doctor.consultationFee,
+          appointmentDate: date,
+          appointmentTime: time,
+          reason: reason,
+          appointmentId: res.data.data?._id || "",
+        },
+      });
     } catch (err) {
       console.log(err);
       alert(
         err.response?.data?.message ||
-          "Unable to book appointment. Please try again.",
+          "Unable to book appointment. Please try again."
       );
     } finally {
       setBooking(false);
