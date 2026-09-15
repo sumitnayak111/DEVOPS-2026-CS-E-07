@@ -1,0 +1,50 @@
+services:
+
+  mongodb:
+    image: mongo:7
+    container_name: hms_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - hms_network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: hms_server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./server/.env
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      - mongodb
+    networks:
+      - hms_network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: hms_client
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - hms_network
+
+volumes:
+  mongodb_data:
+  uploads_data:
+
+networks:
+  hms_network:
+    driver: bridge
