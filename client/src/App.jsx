@@ -30,6 +30,8 @@ import Footer from "./components/Footer";
 
 import Contact from "./pages/Contact";
 
+import AppointmentSuccess from "./pages/AppointmentSuccess";
+
 function App() {
   return (
     <>
@@ -85,6 +87,8 @@ function App() {
 
         <Route path="/patient" element={<PatientDashboard />} />
         <Route path="/contact" element={<Contact />} />
+
+        <Route path="/appointments/success" element={<ProtectedRoute><AppointmentSuccess /></ProtectedRoute>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
