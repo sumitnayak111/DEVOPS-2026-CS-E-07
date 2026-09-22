@@ -1,109 +1,178 @@
 import { useEffect, useState } from "react";
+
 import API from "../services/api";
+
 import DoctorForm from "../components/DoctorForm";
+
 function AdminDashboard() {
   const [doctors, setDoctors] = useState([]);
-  const [appointments, setAppointments] = useState([]);
-  useEffect(() => {
-    fetchDoctors();
-    fetchAppointments();
-  }, []);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
   const fetchDoctors = async () => {
     try {
+      setLoading(true);
+
+      setError("");
+
       const res = await API.get("/doctors");
-      setDoctors(res.data.data);
+
+      console.log("Doctors API Response:", res.data);
+
+      setDoctors(res.data.data || []);
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching doctors:", err);
+
+      setError(err.response?.data?.message || "Failed to load doctors");
+
+      setDoctors([]);
+    } finally {
+      setLoading(false);
     }
   };
-  const fetchAppointments = async () => {
-    try {
-      const res = await API.get("/appointments");
-      setAppointments(res.data.data);
-    } catch (err) {
-      console.log(err);
-    }
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const handleDoctorAdded = () => {
+    fetchDoctors();
   };
-  const deleteDoctor = async (id) => {
+
+  const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this doctor?"
+      "Are you sure you want to delete this doctor?",
     );
+
     if (!confirmDelete) return;
+
     try {
       await API.delete(`/doctors/${id}`);
-      alert("Doctor Deleted Successfully");
+
+      alert("Doctor deleted successfully");
+
       fetchDoctors();
     } catch (err) {
-      alert(err.response?.data?.message || "Delete Failed");
+      console.error("Delete error:", err);
+
+      alert(err.response?.data?.message || "Failed to delete doctor");
     }
   };
+
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      {/* Dashboard Cards */}
-      <div className="grid grid-cols-4 gap-5 mb-8">
-        <div className="bg-blue-600 text-white p-5 rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Doctors</h2>
-          <p className="text-3xl">{doctors.length}</p>
-        </div>
-        <div className="bg-green-600 text-white p-5 rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Appointments</h2>
-          <p className="text-3xl">{appointments.length}</p>
-        </div>
-        <div className="bg-yellow-500 text-white p-5 rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Pending</h2>
-          <p className="text-3xl">
-            {
-              appointments.filter(
-                (appointment) => appointment.status === "Pending"
-              ).length
-            }
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+
+          <p className="text-gray-600 mt-2">
+            Manage doctors and hospital services
           </p>
         </div>
-        <div className="bg-red-600 text-white p-5 rounded-lg shadow">
-          <h2 className="text-lg font-semibold">Completed</h2>
-          <p className="text-3xl">
-            {
-              appointments.filter(
-                (appointment) => appointment.status === "Completed"
-              ).length
-            }
-          </p>
+
+        {/* Add Doctor */}
+
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+            Add New Doctor
+          </h2>
+
+          <DoctorForm onDoctorAdded={handleDoctorAdded} />
+        </div>
+
+        {/* Doctors */}
+
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800">Doctors</h2>
+
+              <p className="text-gray-500 mt-1">
+                Total Doctors: {doctors.length}
+              </p>
+            </div>
+          </div>
+
+          {loading && (
+            <p className="text-center text-gray-500 py-8">Loading doctors...</p>
+          )}
+
+          {!loading && error && (
+            <div className="bg-red-100 text-red-700 p-4 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && doctors.length === 0 && (
+            <div className="text-center py-10 text-gray-500">
+              <p className="text-lg">No doctors found.</p>
+
+              <p className="text-sm mt-2">Add a doctor using the form above.</p>
+            </div>
+          )}
+
+          {!loading && !error && doctors.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 text-left">
+                    <th className="p-4 border-b">Doctor</th>
+
+                    <th className="p-4 border-b">Specialization</th>
+
+                    <th className="p-4 border-b">Experience</th>
+
+                    <th className="p-4 border-b">Fee</th>
+
+                    <th className="p-4 border-b">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {doctors.map((doctor) => (
+                    <tr key={doctor._id} className="hover:bg-gray-50">
+                      <td className="p-4 border-b">
+                        <div className="font-semibold text-gray-800">
+                          {doctor.name}
+                        </div>
+
+                        <div className="text-sm text-gray-500">
+                          {doctor.email}
+                        </div>
+                      </td>
+
+                      <td className="p-4 border-b">{doctor.specialization}</td>
+
+                      <td className="p-4 border-b">
+                        {doctor.experience} years
+                      </td>
+
+                      <td className="p-4 border-b">
+                        ₹{doctor.consultationFee}
+                      </td>
+
+                      <td className="p-4 border-b">
+                        <button
+                          onClick={() => handleDelete(doctor._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
-      <DoctorForm onDoctorAdded={fetchDoctors} />
-      <table className="w-full border mt-6">
-        <thead>
-          <tr className="bg-blue-600 text-white">
-            <th className="border p-2">Name</th>
-            <th className="border p-2">Specialization</th>
-            <th className="border p-2">Experience</th>
-            <th className="border p-2">Fees</th>
-            <th className="border p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {doctors.map((doctor) => (
-            <tr key={doctor._id}>
-              <td className="border p-2">{doctor.name}</td>
-              <td className="border p-2">{doctor.specialization}</td>
-              <td className="border p-2">{doctor.experience}</td>
-              <td className="border p-2">
-                ₹{doctor.consultationFee}
-              </td>
-              <td className="border p-2">
-                <button
-                  onClick={() => deleteDoctor(doctor._id)}
-                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
+
 export default AdminDashboard;
