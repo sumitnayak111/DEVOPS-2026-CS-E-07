@@ -12,16 +12,16 @@ pipeline {
 
     environment {
 
-        // Jenkins credential ID
+        // Node.js and npm path for macOS Jenkins
+        PATH = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${env.PATH}"
 
+        // Jenkins credential ID
         GIT_CREDENTIALS = 'Hospital_Jenkins_id'
 
         // Feedback file
-
         FEEDBACK_FILE = 'jenkins-feedback.md'
 
         // GitHub repository
-
         GITHUB_REPO = 'https://github.com/sumitnayak111/DEVOPS-2026-CS-E-07.git'
 
     }
@@ -29,9 +29,7 @@ pipeline {
     stages {
 
         // ==================================================
-
         // 1. CHECKOUT PROJECT
-
         // ==================================================
 
         stage('Checkout') {
@@ -52,10 +50,42 @@ pipeline {
 
         }
 
+
+        // ==================================================
+        // 2. CHECK NODE AND NPM
         // ==================================================
 
-        // 2. CHECK WHETHER THIS IS JENKINS FEEDBACK COMMIT
+        stage('Check Node and NPM') {
 
+            steps {
+
+                sh '''
+                    echo "======================================"
+                    echo "Checking Node.js and npm"
+                    echo "======================================"
+
+                    echo "Node path:"
+                    which node
+
+                    echo "Node version:"
+                    node -v
+
+                    echo "NPM path:"
+                    which npm
+
+                    echo "NPM version:"
+                    npm -v
+
+                    echo "======================================"
+                '''
+
+            }
+
+        }
+
+
+        // ==================================================
+        // 3. CHECK WHETHER THIS IS JENKINS FEEDBACK COMMIT
         // ==================================================
 
         stage('Check Jenkins Feedback Commit') {
@@ -72,6 +102,7 @@ pipeline {
 
                     ).trim()
 
+
                     def changedFiles = sh(
 
                         script: 'git diff-tree --no-commit-id --name-only -r HEAD',
@@ -79,6 +110,7 @@ pipeline {
                         returnStdout: true
 
                     ).trim()
+
 
                     echo 'Latest commit:'
 
@@ -88,6 +120,7 @@ pipeline {
 
                     echo changedFiles
 
+
                     def files = changedFiles
 
                         .split('\\n')
@@ -96,24 +129,16 @@ pipeline {
 
                         .findAll { it }
 
+
                     /*
-
                      * Jenkins itself creates:
-
                      *
-
                      * [JENKINS-FEEDBACK] Update feedback
-
                      *
-
                      * If GitHub webhook triggers Jenkins again because
-
                      * of this commit, Jenkins will skip the testing stages.
-
                      *
-
                      * This prevents an infinite loop.
-
                      */
 
                     if (
@@ -132,6 +157,7 @@ pipeline {
 
                         env.SKIP_FEEDBACK_PIPELINE = 'true'
 
+
                         echo '======================================'
 
                         echo 'JENKINS FEEDBACK COMMIT DETECTED'
@@ -142,9 +168,11 @@ pipeline {
 
                         echo '======================================'
 
+
                     } else {
 
                         env.SKIP_FEEDBACK_PIPELINE = 'false'
+
 
                         echo 'Normal developer commit detected.'
 
@@ -158,10 +186,9 @@ pipeline {
 
         }
 
+
         // ==================================================
-
-        // 3. INSTALL CLIENT DEPENDENCIES
-
+        // 4. INSTALL CLIENT DEPENDENCIES
         // ==================================================
 
         stage('Install Client Dependencies') {
@@ -188,10 +215,9 @@ pipeline {
 
         }
 
+
         // ==================================================
-
-        // 4. INSTALL SERVER DEPENDENCIES
-
+        // 5. INSTALL SERVER DEPENDENCIES
         // ==================================================
 
         stage('Install Server Dependencies') {
@@ -218,10 +244,9 @@ pipeline {
 
         }
 
+
         // ==================================================
-
-        // 5. BUILD REACT CLIENT
-
+        // 6. BUILD REACT CLIENT
         // ==================================================
 
         stage('Build Client') {
@@ -252,10 +277,9 @@ pipeline {
 
         }
 
+
         // ==================================================
-
-        // 6. CHECK NODE/EXPRESS SERVER
-
+        // 7. CHECK NODE/EXPRESS SERVER
         // ==================================================
 
         stage('Check Server') {
@@ -286,10 +310,9 @@ pipeline {
 
         }
 
+
         // ==================================================
-
-        // 7. GENERATE JENKINS FEEDBACK FILE
-
+        // 8. GENERATE JENKINS FEEDBACK FILE
         // ==================================================
 
         stage('Generate Jenkins Feedback') {
@@ -319,19 +342,12 @@ pipeline {
 ## Build Information
 
 | Item | Value |
-
 |---|---|
-
 | Build Number | ${env.BUILD_NUMBER} |
-
 | Job Name | ${env.JOB_NAME} |
-
 | Branch | ${env.BRANCH_NAME} |
-
 | Commit | ${env.GIT_COMMIT} |
-
 | Jenkins Result | ${currentBuild.currentResult} |
-
 | Date | ${new Date()} |
 
 ---
@@ -339,17 +355,13 @@ pipeline {
 ## CI Checks
 
 | Check | Result |
-
 |---|---|
-
 | Git Checkout | PASS |
-
+| Node.js Available | PASS |
+| npm Available | PASS |
 | Client Dependencies | PASS |
-
 | Server Dependencies | PASS |
-
 | React Client Build | PASS |
-
 | Node.js Server Syntax | PASS |
 
 ---
@@ -382,6 +394,7 @@ Generated automatically by Jenkins.
 
 """
 
+
                     writeFile(
 
                         file: env.FEEDBACK_FILE,
@@ -390,11 +403,13 @@ Generated automatically by Jenkins.
 
                     )
 
+
                     echo '======================================'
 
                     echo 'JENKINS FEEDBACK CREATED'
 
                     echo '======================================'
+
 
                     echo feedback
 
@@ -404,10 +419,9 @@ Generated automatically by Jenkins.
 
         }
 
+
         // ==================================================
-
-        // 8. PUSH JENKINS FEEDBACK TO MAIN
-
+        // 9. PUSH JENKINS FEEDBACK TO MAIN
         // ==================================================
 
         stage('Push Feedback to Main') {
@@ -431,15 +445,10 @@ Generated automatically by Jenkins.
             steps {
 
                 /*
-
                  * Your Jenkins credential is a Secret Text credential.
-
                  *
-
                  * Credential ID:
-
                  * Hospital_Jenkins_id
-
                  */
 
                 withCredentials([
@@ -458,11 +467,14 @@ Generated automatically by Jenkins.
 
                         echo "Preparing Jenkins feedback commit..."
 
+
                         git config user.name "Jenkins"
 
                         git config user.email "jenkins@hospital-management.local"
 
+
                         git add jenkins-feedback.md
+
 
                         if git diff --cached --quiet; then
 
@@ -472,9 +484,12 @@ Generated automatically by Jenkins.
 
                             git commit -m "[JENKINS-FEEDBACK] Update feedback"
 
+
                             echo "Pushing Jenkins feedback to main..."
 
+
                             git push https://x-access-token:${GITHUB_TOKEN}@github.com/sumitnayak111/DEVOPS-2026-CS-E-07.git HEAD:main
+
 
                             echo "Jenkins feedback pushed successfully."
 
@@ -490,10 +505,9 @@ Generated automatically by Jenkins.
 
     }
 
+
     // ======================================================
-
     // POST BUILD ACTIONS
-
     // ======================================================
 
     post {
@@ -508,6 +522,7 @@ Generated automatically by Jenkins.
 
             echo '======================================'
 
+
             archiveArtifacts(
 
                 artifacts: 'jenkins-feedback.md',
@@ -520,6 +535,7 @@ Generated automatically by Jenkins.
 
         }
 
+
         success {
 
             echo '======================================'
@@ -531,6 +547,7 @@ Generated automatically by Jenkins.
             echo '======================================'
 
         }
+
 
         failure {
 
