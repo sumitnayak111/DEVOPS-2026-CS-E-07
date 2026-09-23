@@ -1,183 +1,226 @@
 import { useEffect, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
+
 import API from "../services/api";
+
 function BookAppointment() {
-  const { doctorId } = useParams();
+  const { id } = useParams();
+
   const navigate = useNavigate();
+
   const [doctor, setDoctor] = useState(null);
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [reason, setReason] = useState("");
+
   const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState(false);
+
   const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
+    appointmentDate: "",
+
+    appointmentTime: "",
+
+    reason: "",
+  });
+
   useEffect(() => {
     fetchDoctor();
-  }, [doctorId]);
+  }, [id]);
+
   const fetchDoctor = async () => {
     try {
       setLoading(true);
-      const res = await API.get(`/doctors/${doctorId}`);
+
+      const res = await API.get(`/doctors/${id}`);
+
       setDoctor(res.data.data);
     } catch (err) {
-      console.log(err);
-      setError("Unable to load doctor details.");
+      console.error("Doctor Error:", err);
+
+      setError(err.response?.data?.message || "Unable to load doctor.");
     } finally {
       setLoading(false);
     }
   };
-  const handleBooking = async (e) => {
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!date || !time) {
-      alert("Please select appointment date and time.");
-      return;
-    }
+
     try {
-      setBooking(true);
       const res = await API.post("/appointments", {
-        doctorId,
-        appointmentDate: date,
-        appointmentTime: time,
-        reason,
+        doctor: id,
+
+        appointmentDate: formData.appointmentDate,
+
+        appointmentTime: formData.appointmentTime,
+
+        reason: formData.reason,
       });
-          // Navigate to success page with booking details passed as state
-      navigate("/appointments/success", {
+
+      // Go to Appointment Success page
+
+      navigate("/appointment-success", {
         state: {
-          doctorName: doctor.name,
-          specialization: doctor.specialization,
-          consultationFee: doctor.consultationFee,
-          appointmentDate: date,
-          appointmentTime: time,
-          reason: reason,
-          appointmentId: res.data.data?._id || "",
+          appointment: res.data.data,
         },
       });
     } catch (err) {
-      console.log(err);
-      alert(
-        err.response?.data?.message ||
-          "Unable to book appointment. Please try again."
-      );
-    } finally {
-      setBooking(false);
+      console.error("Appointment Error:", err);
+
+      alert(err.response?.data?.message || "Failed to book appointment");
     }
   };
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <p className="text-xl">Loading doctor details...</p>
+        <p className="text-xl text-gray-600">Loading doctor...</p>
       </div>
     );
   }
+
   if (error || !doctor) {
     return (
       <div className="min-h-screen flex justify-center items-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600">
-            {error || "Doctor not found"}
-          </h2>
-          <button
-            onClick={() => navigate("/doctors")}
-            className="mt-5 bg-blue-600 text-white px-5 py-3 rounded-lg"
-          >
-            Back to Doctors
-          </button>
-        </div>
+        <p className="text-red-600">{error || "Doctor not found"}</p>
       </div>
     );
   }
+
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-5">
+    <div className="min-h-screen bg-gray-100 py-10 px-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Book Your Appointment
+        {/* Heading */}
+
+        <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
+          Book Appointment
         </h1>
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Doctor Information */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+
+        {/* Doctor Information */}
+
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex items-center gap-6">
             <img
               src={
-                doctor.image ||
-                "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500"
+                doctor.image
+                  ? `http://localhost:8000${doctor.image}`
+                  : "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500"
               }
               alt={doctor.name}
-              className="w-full h-72 object-cover"
+              className="w-28 h-28 rounded-full object-cover"
             />
-            <div className="p-6">
-              <h2 className="text-2xl font-bold">Dr. {doctor.name}</h2>
-              <p className="text-blue-600 font-semibold mt-2">
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Dr. {doctor.name}
+              </h2>
+
+              <p className="text-blue-600 font-semibold mt-1">
                 {doctor.specialization}
               </p>
-              <p className="text-gray-600 mt-3">
-                Qualification: {doctor.qualification}
+
+              <p className="text-gray-600 mt-1">{doctor.qualification}</p>
+
+              <p className="text-gray-600 mt-1">
+                Experience: {doctor.experience} years
               </p>
-              <p className="text-gray-600 mt-2">
-                Experience: {doctor.experience} Years
-              </p>
-              <p className="text-gray-600 mt-2">
+
+              <p className="text-gray-600 mt-1">
                 Consultation Fee: ₹{doctor.consultationFee}
-              </p>
-              <p className="text-gray-600 mt-2">
-                Available Time: {doctor.availableTime || "Contact hospital"}
               </p>
             </div>
           </div>
-          {/* Booking Form */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-6">Appointment Details</h2>
-            <form onSubmit={handleBooking}>
-              <div className="mb-5">
-                <label className="block font-medium mb-2">Select Date</label>
-                <input
-                  type="date"
-                  value={date}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3"
-                  required
-                />
-              </div>
-              <div className="mb-5">
-                <label className="block font-medium mb-2">Select Time</label>
-                <input
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3"
-                  required
-                />
-              </div>
-              <div className="mb-5">
-                <label className="block font-medium mb-2">
-                  Reason for Visit
-                </label>
-                <textarea
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="Enter reason for your appointment"
-                  rows="4"
-                  className="w-full border border-gray-300 rounded-lg p-3"
-                  required
-                ></textarea>
-              </div>
-              <div className="bg-blue-50 p-4 rounded-lg mb-5">
-                <p className="text-gray-700">Consultation Fee</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  ₹{doctor.consultationFee}
-                </p>
-              </div>
-              <button
-                type="submit"
-                disabled={booking}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
-              >
-                {booking ? "Booking Appointment..." : "Confirm Appointment"}
-              </button>
-            </form>
-          </div>
         </div>
+
+        {/* Appointment Form */}
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-xl shadow-lg p-6"
+        >
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            Appointment Details
+          </h2>
+
+          {/* Date + Time */}
+
+          <div className="grid md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Appointment Date
+              </label>
+
+              <input
+                type="date"
+                name="appointmentDate"
+                value={formData.appointmentDate}
+                onChange={handleChange}
+                min={
+                  new Date()
+
+                    .toISOString()
+
+                    .split("T")[0]
+                }
+                required
+                className="w-full border border-gray-300 rounded-lg p-3"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Appointment Time
+              </label>
+
+              <input
+                type="time"
+                name="appointmentTime"
+                value={formData.appointmentTime}
+                onChange={handleChange}
+                required
+                className="w-full border border-gray-300 rounded-lg p-3"
+              />
+            </div>
+          </div>
+
+          {/* Reason */}
+
+          <div className="mt-5">
+            <label className="block text-gray-700 font-medium mb-2">
+              Reason for Appointment
+            </label>
+
+            <textarea
+              name="reason"
+              value={formData.reason}
+              onChange={handleChange}
+              placeholder="Enter reason for appointment..."
+              rows="4"
+              required
+              className="w-full border border-gray-300 rounded-lg p-3"
+            />
+          </div>
+
+          {/* Submit */}
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg mt-6"
+          >
+            Book Appointment
+          </button>
+        </form>
       </div>
     </div>
   );
 }
+
 export default BookAppointment;
