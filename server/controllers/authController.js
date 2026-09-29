@@ -48,7 +48,6 @@ const loginUser = async (req, res) => {
     });
   }
 };
-        // rest of the code...
 // Register User
 const registerUser = async (req, res) => {
     try {
@@ -91,7 +90,83 @@ const registerUser = async (req, res) => {
         });
     }
 };
+
+// Get Profile — NEW
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+ 
+// Update Profile — NEW
+const updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+ 
+    // Build update object
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (phone) updateFields.phone = phone;
+ 
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      updateFields,
+      { new: true }
+    ).select("-password");
+ 
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+ 
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated Successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+ 
+// Change Password — NEW
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+ 
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+ 
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Current password is incorrect" });
+    }
+ 
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+ 
+    res.status(200).json({ success: true, message: "Password Changed Successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    getProfile,
+    updateProfile,
+    changePassword,
 };
