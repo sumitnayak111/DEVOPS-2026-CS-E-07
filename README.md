@@ -1,193 +1,142 @@
 # 🏥 Hospital Management System
 
-A **Hospital Management System** is a software application designed to manage and organize the day-to-day operations of a hospital. The system helps manage patient information, doctors, appointments, medical records, and other hospital-related activities efficiently.
+A full-stack web application for managing hospital operations digitally. It lets patients browse doctors and book appointments online, and gives administrators a dashboard to manage doctors and appointment requests.
 
 ## 📌 Project Overview
 
-The Hospital Management System provides a centralized platform for managing hospital information digitally. It reduces manual paperwork and makes it easier for hospital staff to store, access, and manage patient and hospital data.
-
-The main objective of this project is to develop a simple, user-friendly, and efficient system that can be used to manage different hospital operations.
+The Hospital Management System provides a centralized platform that reduces manual paperwork and makes doctor and appointment data easy to store, search, and manage. Patients and admins get separate, role-based experiences.
 
 ## ✨ Features
 
-* 👨‍⚕️ **Doctor Management**
+### 👤 Authentication & Roles
+* Register, login, and profile management
+* JWT-based authentication
+* Role-based access control (**Admin** and **Patient**) with protected routes
 
-  * Add doctor details
-  * View doctor information
-  * Update doctor information
-  * Delete doctor records
+### 👨‍⚕️ Doctor Management
+* Admin can add, view, update, and delete doctors
+* Doctor profile image upload
+* Doctor details: specialization, qualification, experience, consultation fee, available days and time
+* **Doctor Search & Filter**: search plus max-fee and minimum-experience filters, an advanced-filter toggle, active filter tags, clear-all, and a live result count
 
-* 🧑‍🤝‍🧑 **Patient Management**
+### 📅 Appointment Management
+* Patients can book appointments with doctors
+* Patients can view their own appointments
+* Admin can view all appointments and update status: `Pending`, `Approved`, `Rejected`, `Completed`
+* Admin can delete appointments
 
-  * Register new patients
-  * View patient details
-  * Update patient information
-  * Delete patient records
+### 📊 Dashboards
+* **Admin Dashboard** for managing doctors and appointments
+* **Patient Dashboard** for personal appointments and information
 
-* 📅 **Appointment Management**
+### 📞 Contact Us
+* Contact form with validation
+* Information cards, embedded Google Map, emergency banner, and quick links
 
-  * Schedule appointments
-  * View appointments
-  * Manage appointment details
+## 🛠️ Tech Stack
 
-* 🏥 **Hospital Management**
-
-  * Manage hospital-related information
-  * Maintain departments and services
-
-* 💊 **Medical Records**
-
-  * Store patient medical information
-  * Maintain treatment and diagnosis records
-
-* 🔐 **Authentication**
-
-  * Secure login system
-  * Role-based access for different users
-
-## 🛠️ Technologies Used
-
-The project is developed using the following technologies:
-
-| Technology         | Purpose                   |
-| ------------------ | ------------------------- |
-| HTML               | Structure of web pages    |
-| CSS                | Styling and UI design     |
-| JavaScript         | Client-side functionality |
-| Java / Spring Boot | Backend development       |
-| MySQL              | Database management       |
-| Git & GitHub       | Version control           |
-
-> **Note:** Update the technology list according to the actual technologies used in your project.
+| Layer     | Technology                         |
+| --------- | ---------------------------------- |
+| Frontend  | React, Vite, TailwindCSS           |
+| Backend   | Node.js, Express.js                |
+| Database  | MongoDB, Mongoose                  |
+| File Upload | Multer                           |
+| CI/CD     | Jenkins, GitHub Actions            |
+| Version Control | Git & GitHub                 |
 
 ## 🏗️ Project Structure
 
 ```text
-Hospital-Management-System/
+DEVOPS-2026-CS-E-07/
 │
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── ...
-│   │   │
-│   │   └── resources/
-│   │       ├── static/
-│   │       ├── templates/
-│   │       └── application.properties
-│   │
-│   └── test/
+├── client/                  # React + Vite frontend
+│   └── src/
+│       ├── pages/           # Home, Login, Register, Doctors, DoctorDetails,
+│       │                    # BookAppointment, MyAppointments, AdminDashboard,
+│       │                    # AdminAppointments, PatientDashboard, NotFound
+│       └── components/      # Navbar, Footer, ProtectedRoute
 │
-├── database/
-│   └── hospital_management.sql
+├── server/                  # Node.js + Express backend
+│   ├── models/              # Doctor, Appointment, User
+│   ├── routes/              # auth, doctors, appointments
+│   ├── middleware/          # authMiddleware, uploadMiddleware
+│   └── uploads/doctors/     # Uploaded doctor images
 │
-├── README.md
-└── pom.xml
+└── README.md
 ```
 
-## 🗄️ Database
+> Folder names inside `client/` and `server/` may differ slightly; adjust to match the repository.
 
-The system uses a relational database to store hospital information.
+## 🗄️ Database Models
 
-Some possible tables include:
+**Doctor**: `name`, `specialization`, `qualification`, `experience`, `phone`, `email`, `consultationFee`, `availableDays`, `availableTime`, `image`
 
-* `patients`
-* `doctors`
-* `appointments`
-* `departments`
-* `medical_records`
-* `users`
+**Appointment**: `patient` (ref → User), `doctor` (ref → Doctor), `appointmentDate`, `appointmentTime`, `status` (`Pending` / `Approved` / `Rejected` / `Completed`), `reason`
 
-The database structure can be modified according to the requirements of the project.
+## 🔌 API Endpoints
+
+| Base Route          | Description                                                                 |
+| ------------------- | --------------------------------------------------------------------------- |
+| `/api/auth`         | Register, login, profile                                                    |
+| `/api/doctors`      | Full CRUD for doctors (create, update, delete are admin-protected)          |
+| `/api/appointments` | Book, get my appointments, get by ID; admin: get all, update status, delete |
 
 ## ⚙️ Installation and Setup
+
+### Prerequisites
+* [Node.js](https://nodejs.org/) (v18 or later recommended)
+* [MongoDB](https://www.mongodb.com/) (local instance or Atlas)
+* Git
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/hospital-management-system.git
+git clone https://github.com/sumitnayak111/DEVOPS-2026-CS-E-07.git
+cd DEVOPS-2026-CS-E-07
 ```
 
-### 2. Navigate to the Project Directory
+### 2. Set Up the Backend
 
 ```bash
-cd hospital-management-system
+cd server
+npm install
 ```
 
-### 3. Configure the Database
+Create a `.env` file inside `server/`:
 
-Create a MySQL database:
-
-```sql
-CREATE DATABASE hospital_management;
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
 ```
 
-Import the provided SQL file if available:
+Start the server:
 
 ```bash
-mysql -u root -p hospital_management < hospital_management.sql
+npm run dev
 ```
 
-### 4. Configure Database Credentials
-
-Update the database configuration in:
-
-```text
-application.properties
-```
-
-Example:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/hospital_management
-spring.datasource.username=root
-spring.datasource.password=your_password
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-```
-
-### 5. Run the Application
-
-If the project uses Maven:
+### 3. Set Up the Frontend
 
 ```bash
-mvn spring-boot:run
+cd client
+npm install
+npm run dev
 ```
 
-Or run the main Spring Boot application from your IDE.
-
-### 6. Open the Application
-
-After starting the server, open:
-
-```text
-http://localhost:8080
-```
+The frontend runs on Vite's default address, `http://localhost:5173`.
 
 ## 👥 User Roles
 
-The system can support different users depending on the implementation:
-
 ### Admin
-
-* Manage doctors
-* Manage patients
-* Manage departments
-* Manage users
-* View hospital information
-
-### Doctor
-
-* View assigned patients
-* View appointments
-* Update medical records
+* Manage doctors (add, edit, delete, upload images)
+* View all appointments and approve, reject, or complete them
+* Delete appointments
 
 ### Patient
-
-* Register/login
-* View personal information
-* View appointments
-* View medical records
+* Register and log in
+* Search and filter doctors, view doctor details
+* Book appointments and track their status
 
 ## 🔄 Basic Workflow
 
@@ -197,127 +146,42 @@ User
   ▼
 Login / Registration
   │
-  ▼
-Dashboard
+  ├── Patient ──► Browse Doctors ──► Book Appointment ──► My Appointments
   │
-  ├── Patient Management
-  │
-  ├── Doctor Management
-  │
-  ├── Appointment Management
-  │
-  ├── Medical Records
-  │
-  └── Reports / Information
+  └── Admin ────► Manage Doctors ──► Review Appointments (Approve / Reject / Complete)
 ```
 
-## 🎯 Objectives
+## 🔁 CI/CD
 
-The major objectives of this project are:
-
-1. To digitize hospital management activities.
-2. To reduce manual paperwork.
-3. To maintain patient and doctor information efficiently.
-4. To simplify appointment management.
-5. To provide quick access to hospital records.
-6. To improve the overall efficiency of hospital operations.
+The project uses **Jenkins** and **GitHub Actions** for continuous integration and delivery.
 
 ## 🚀 Future Enhancements
 
-The project can be extended with additional features such as:
-
-* Online appointment booking
+* Medical records and prescription management
 * Online payment system
-* Prescription management
-* Pharmacy management
-* Laboratory management
-* Blood bank management
-* Email/SMS notifications
-* Advanced reports and analytics
-* Doctor-patient communication
-* Mobile application
+* Email/SMS appointment notifications
+* Pharmacy, laboratory, and blood bank modules
+* Reports and analytics
 * Cloud deployment
 
-## 📸 Screenshots
+## 🤝 Contributing
 
-Add screenshots of your application here.
-
-Example:
-
-```text
-screenshots/
-├── login.png
-├── dashboard.png
-├── patient-management.png
-├── doctor-management.png
-└── appointment-management.png
-```
-
-## 🧪 Testing
-
-The application should be tested for:
-
-* User registration
-* Login functionality
-* Patient management
-* Doctor management
-* Appointment scheduling
-* Database operations
-* Form validation
-* Authentication and authorization
-* Error handling
-
-## 🔒 Security
-
-Basic security practices should be implemented, including:
-
-* User authentication
-* Password protection
-* Input validation
-* Role-based authorization
-* Secure database access
-
-## 🤝 Contribution
-
-Contributions are welcome.
-
-To contribute:
-
-```bash
-git clone https://github.com/your-username/hospital-management-system.git
-```
-
-Create a new branch:
-
-```bash
-git checkout -b feature-name
-```
-
-Make your changes and commit them:
+1. Clone the repository
+2. Work on your assigned branch
+3. Commit your changes with a clear message
+4. Push to your branch and open a Pull Request into `main`
 
 ```bash
 git add .
-git commit -m "Add new feature"
+git commit -m "Describe your change"
+git push origin <your-branch>
 ```
 
-Push the branch:
+## 👨‍💻 Contributors
 
-```bash
-git push origin feature-name
-```
-
-Then create a Pull Request.
+* **Sumit Nayak**: repository owner, built the base application
+* **Sunil**: feature development (Doctor Search & Filter, Contact Us, and more), B.Tech Computer Science and Engineering, SKIT Jaipur
 
 ## 📄 License
 
-This project is developed for **educational purposes**. You may modify and use the project according to your requirements.
-
-## 👨‍💻 Author
-
-**Sunil**
-
-B.Tech Computer Science and Engineering
-
----
-
-⭐ If you find this project useful, consider giving the repository a star!
+This project is developed for **educational purposes**.
