@@ -42,6 +42,7 @@ The Hospital Management System provides a centralized platform that reduces manu
 | Database  | MongoDB, Mongoose                  |
 | File Upload | Multer                           |
 | CI/CD     | Jenkins, GitHub Actions            |
+| Monitoring | Prometheus, Grafana               |
 | Version Control | Git & GitHub                 |
 
 ## 🏗️ Project Structure
@@ -154,6 +155,30 @@ Login / Registration
 ## 🔁 CI/CD
 
 The project uses **Jenkins** and **GitHub Actions** for continuous integration and delivery.
+
+## 📈 Monitoring & Observability (Prometheus & Grafana)
+
+The project includes an observability stack with **Prometheus** and **Grafana** configured in Docker Compose.
+
+### Monitored Metrics:
+* **HTTP Requests**: rate, count, and error breakdown by status code and route (`hms_http_requests_total`)
+* **Response Latency**: 95th & 50th percentile durations (`hms_http_request_duration_seconds`)
+* **Active Connections**: in-flight HTTP requests (`hms_http_requests_in_flight`)
+* **Node.js System Metrics**: Heap memory, resident memory (RSS), CPU utilization, event loop lag, and active handles
+
+### Access & Service Ports:
+* **Frontend**: `http://localhost:3000`
+* **Backend API**: `http://localhost:8000`
+* **Backend Metrics Endpoint**: `http://localhost:8000/metrics`
+* **Prometheus UI**: `http://localhost:9090`
+* **Grafana Dashboard**: `http://localhost:3001` (Credentials: `admin` / `admin`)
+  * Automatically provisions Prometheus data source and pre-loads the **"Hospital Management System - Monitoring Dashboard"**.
+
+To run the full stack including monitoring:
+```bash
+docker-compose up --build
+```
+
 
 ## 🚀 Future Enhancements
 
