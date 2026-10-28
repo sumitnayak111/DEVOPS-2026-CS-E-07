@@ -14,6 +14,7 @@ import AppointmentSuccess from "./pages/AppointmentSuccess";
 import Contact from "./pages/Contact";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Monitoring from "./pages/Monitoring";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/doctors/:id" element={<DoctorDetails />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/monitoring" element={<Monitoring />} />
 
         {/* Patient Protected Routes */}
         <Route

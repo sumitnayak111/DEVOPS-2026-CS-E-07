@@ -33,6 +33,12 @@ function Navbar() {
           <Link to="/contact" className="hover:text-yellow-300 transition">
             Contact
           </Link>
+          <Link
+            to="/monitoring"
+            className="flex items-center gap-1.5 bg-blue-700 hover:bg-blue-800 text-yellow-300 px-3 py-1.5 rounded-lg font-medium transition text-sm"
+          >
+            <span>📊</span> Monitoring
+          </Link>
 
           {/* Patient Links */}
           {token && role === "patient" && (
