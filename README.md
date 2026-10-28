@@ -2,6 +2,15 @@
 
 A full-stack web application for managing hospital operations digitally. It lets patients browse doctors and book appointments online, and gives administrators a dashboard to manage doctors and appointment requests.
 
+## 🌐 Live Deployment
+
+| Service | Platform | Live URL | Status |
+| :--- | :--- | :--- | :--- |
+| **Frontend Web App** | **Vercel** | [hospital-management-system-delta-jet.vercel.app](https://hospital-management-system-delta-jet.vercel.app) | 🟢 Live |
+| **Backend REST API** | **Render** | [hospital-backend-api-480e.onrender.com](https://hospital-backend-api-480e.onrender.com) | 🟢 Live |
+| **Prometheus Metrics** | **Render** | [hospital-backend-api-480e.onrender.com/metrics](https://hospital-backend-api-480e.onrender.com/metrics) | 🟢 Live |
+| **Database** | **MongoDB Atlas** | Cloud Managed Cluster | 🟢 Connected |
+
 ## 📌 Project Overview
 
 The Hospital Management System provides a centralized platform that reduces manual paperwork and makes doctor and appointment data easy to store, search, and manage. Patients and admins get separate, role-based experiences.
@@ -28,6 +37,7 @@ The Hospital Management System provides a centralized platform that reduces manu
 ### 📊 Dashboards
 * **Admin Dashboard** for managing doctors and appointments
 * **Patient Dashboard** for personal appointments and information
+* **DevOps Observability Hub** directly integrated into the client application
 
 ### 📞 Contact Us
 * Contact form with validation
@@ -43,6 +53,7 @@ The Hospital Management System provides a centralized platform that reduces manu
 | File Upload | Multer                           |
 | CI/CD     | Jenkins, GitHub Actions            |
 | Monitoring | Prometheus, Grafana               |
+| Deployment | Vercel (Frontend), Render (Backend), MongoDB Atlas |
 | Version Control | Git & GitHub                 |
 
 ## 🏗️ Project Structure
@@ -51,22 +62,33 @@ The Hospital Management System provides a centralized platform that reduces manu
 DEVOPS-2026-CS-E-07/
 │
 ├── client/                  # React + Vite frontend
-│   └── src/
-│       ├── pages/           # Home, Login, Register, Doctors, DoctorDetails,
-│       │                    # BookAppointment, MyAppointments, AdminDashboard,
-│       │                    # AdminAppointments, PatientDashboard, NotFound
-│       └── components/      # Navbar, Footer, ProtectedRoute
+│   ├── src/
+│   │   ├── pages/           # Home, Login, Register, Doctors, DoctorDetails,
+│   │   │                    # BookAppointment, MyAppointments, AdminDashboard,
+│   │   │                    # AdminAppointments, PatientDashboard, Monitoring, NotFound
+│   │   └── components/      # Navbar, Footer, ProtectedRoute, DoctorCard, DoctorForm
+│   └── vercel.json          # SPA routing configuration for Vercel
 │
 ├── server/                  # Node.js + Express backend
+│   ├── config/              # db.js connection
+│   ├── controllers/         # appointment, auth, doctor controllers
 │   ├── models/              # Doctor, Appointment, User
 │   ├── routes/              # auth, doctors, appointments
-│   ├── middleware/          # authMiddleware, uploadMiddleware
+│   ├── middleware/          # authMiddleware, uploadMiddleware, metricsMiddleware
 │   └── uploads/doctors/     # Uploaded doctor images
 │
+├── prometheus/              # Prometheus scraping configuration
+│   └── prometheus.yml
+│
+├── grafana/                 # Grafana automated provisioning & dashboards
+│   └── provisioning/
+│       ├── datasources/     # Auto-configured Prometheus datasource
+│       └── dashboards/      # Pre-built Hospital System metrics dashboard
+│
+├── docker-compose.yml       # Multi-container orchestration (Server, Client, Mongo, Prometheus, Grafana)
+├── render.yaml              # Render cloud infrastructure blueprint
 └── README.md
 ```
-
-> Folder names inside `client/` and `server/` may differ slightly; adjust to match the repository.
 
 ## 🗄️ Database Models
 
@@ -81,13 +103,32 @@ DEVOPS-2026-CS-E-07/
 | `/api/auth`         | Register, login, profile                                                    |
 | `/api/doctors`      | Full CRUD for doctors (create, update, delete are admin-protected)          |
 | `/api/appointments` | Book, get my appointments, get by ID; admin: get all, update status, delete |
+| `/metrics`          | Prometheus application and system scrape endpoint                           |
 
-## ⚙️ Installation and Setup
+## 📈 Monitoring & Observability (Prometheus & Grafana)
 
-### Prerequisites
-* [Node.js](https://nodejs.org/) (v18 or later recommended)
-* [MongoDB](https://www.mongodb.com/) (local instance or Atlas)
-* Git
+The project includes an observability stack with **Prometheus** and **Grafana** configured in Docker Compose.
+
+### Monitored Metrics:
+* **HTTP Requests**: rate, count, and error breakdown by status code and route (`hms_http_requests_total`)
+* **Response Latency**: 95th & 50th percentile durations (`hms_http_request_duration_seconds`)
+* **Active Connections**: in-flight HTTP requests (`hms_http_requests_in_flight`)
+* **Node.js System Metrics**: Heap memory, resident memory (RSS), CPU utilization, event loop lag, and active handles
+
+### Access & Service Ports (Local Docker Stack):
+* **Frontend**: `http://localhost:3000`
+* **Backend API**: `http://localhost:8000`
+* **Backend Metrics Endpoint**: `http://localhost:8000/metrics`
+* **Prometheus UI**: `http://localhost:9090`
+* **Grafana Dashboard**: `http://localhost:3001` (Credentials: `admin` / `admin`)
+  * Automatically provisions Prometheus data source and pre-loads the **"Hospital Management System - Monitoring Dashboard"**.
+
+To run the full stack locally including monitoring:
+```bash
+docker compose up --build
+```
+
+## ⚙️ Local Development Setup
 
 ### 1. Clone the Repository
 
@@ -106,12 +147,12 @@ npm install
 Create a `.env` file inside `server/`:
 
 ```env
-PORT=5000
+PORT=8000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 ```
 
-Start the server:
+Start the backend:
 
 ```bash
 npm run dev
@@ -120,12 +161,12 @@ npm run dev
 ### 3. Set Up the Frontend
 
 ```bash
-cd client
+cd ../client
 npm install
 npm run dev
 ```
 
-The frontend runs on Vite's default address, `http://localhost:5173`.
+The frontend runs on Vite at `http://localhost:5173`.
 
 ## 👥 User Roles
 
@@ -133,6 +174,7 @@ The frontend runs on Vite's default address, `http://localhost:5173`.
 * Manage doctors (add, edit, delete, upload images)
 * View all appointments and approve, reject, or complete them
 * Delete appointments
+* Access system observability links and dashboard
 
 ### Patient
 * Register and log in
@@ -156,39 +198,6 @@ Login / Registration
 
 The project uses **Jenkins** and **GitHub Actions** for continuous integration and delivery.
 
-## 📈 Monitoring & Observability (Prometheus & Grafana)
-
-The project includes an observability stack with **Prometheus** and **Grafana** configured in Docker Compose.
-
-### Monitored Metrics:
-* **HTTP Requests**: rate, count, and error breakdown by status code and route (`hms_http_requests_total`)
-* **Response Latency**: 95th & 50th percentile durations (`hms_http_request_duration_seconds`)
-* **Active Connections**: in-flight HTTP requests (`hms_http_requests_in_flight`)
-* **Node.js System Metrics**: Heap memory, resident memory (RSS), CPU utilization, event loop lag, and active handles
-
-### Access & Service Ports:
-* **Frontend**: `http://localhost:3000`
-* **Backend API**: `http://localhost:8000`
-* **Backend Metrics Endpoint**: `http://localhost:8000/metrics`
-* **Prometheus UI**: `http://localhost:9090`
-* **Grafana Dashboard**: `http://localhost:3001` (Credentials: `admin` / `admin`)
-  * Automatically provisions Prometheus data source and pre-loads the **"Hospital Management System - Monitoring Dashboard"**.
-
-To run the full stack including monitoring:
-```bash
-docker-compose up --build
-```
-
-
-## 🚀 Future Enhancements
-
-* Medical records and prescription management
-* Online payment system
-* Email/SMS appointment notifications
-* Pharmacy, laboratory, and blood bank modules
-* Reports and analytics
-* Cloud deployment
-
 ## 🤝 Contributing
 
 1. Clone the repository
@@ -205,7 +214,7 @@ git push origin <your-branch>
 ## 👨‍💻 Contributors
 
 * **Sumit Nayak**: repository owner, built the base application
-* **Sunil**: feature development (Doctor Search & Filter, Contact Us, and more), B.Tech Computer Science and Engineering, SKIT Jaipur
+* **Sunil**: feature development (Doctor Search & Filter, Contact Us, Prometheus & Grafana Monitoring, Cloud Deployment on Render & Vercel), B.Tech Computer Science and Engineering, SKIT Jaipur
 
 ## 📄 License
 
