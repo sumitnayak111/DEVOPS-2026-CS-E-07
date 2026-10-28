@@ -74,6 +74,43 @@ function AdminDashboard() {
           </p>
         </div>
 
+        {/* System Monitoring & Observability */}
+        <div className="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-xl shadow-md p-6 mb-8 text-white">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <span className="bg-yellow-400 text-blue-900 text-xs uppercase font-extrabold px-2.5 py-1 rounded">DevOps Monitoring</span>
+              <h2 className="text-2xl font-bold mt-2">Prometheus & Grafana Observability</h2>
+              <p className="text-blue-200 text-sm mt-1">
+                Monitor backend HTTP latency, error rates, in-flight requests, and Node.js runtime metrics.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="http://localhost:3001"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-semibold text-sm transition shadow flex items-center gap-2"
+              >
+                📊 Grafana Dashboard (3001)
+              </a>
+              <a
+                href="http://localhost:9090"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold text-sm transition shadow flex items-center gap-2"
+              >
+                🔥 Prometheus UI (9090)
+              </a>
+              <a
+                href="/monitoring"
+                className="bg-white hover:bg-gray-100 text-blue-900 px-4 py-2 rounded-lg font-semibold text-sm transition shadow"
+              >
+                View Embedded
+              </a>
+            </div>
+          </div>
+        </div>
+
         {/* Add Doctor */}
 
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">

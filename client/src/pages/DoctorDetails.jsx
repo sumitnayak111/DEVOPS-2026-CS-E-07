@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import API from "../services/api";
+import API, { getDoctorImageUrl } from "../services/api";
 function DoctorDetails() {
   const { id } = useParams();
   const [doctor, setDoctor] = useState(null);
@@ -43,9 +43,7 @@ function DoctorDetails() {
       </div>
     );
   }
-  const image = doctor.image
-    ? `http://localhost:8000${doctor.image}`
-    : "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500";
+  const image = getDoctorImageUrl(doctor.image);
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-6">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">

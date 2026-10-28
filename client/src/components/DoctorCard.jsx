@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
+import { getDoctorImageUrl } from "../services/api";
 
 function DoctorCard({ doctor }) {
-  const imageUrl = doctor?.image
-    ? `http://localhost:8000${doctor.image}`
-    : "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=500";
+  const imageUrl = getDoctorImageUrl(doctor?.image);
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition">
